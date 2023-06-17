@@ -32,6 +32,7 @@ export default function LandingPage() {
             sx={{
               boxSizing: "border-box",
               width: "100%",
+              minHeight: 600,
               bgcolor: "#B2A496",
               borderRadius: 10,
             }}
@@ -90,6 +91,8 @@ export default function LandingPage() {
               <CustomTextField
                 id="password"
                 label="Mot de passe :"
+                placeholder="8 caracteres minimums"
+                type="password"
                 variant="standard"
                 fullWidth
               />
