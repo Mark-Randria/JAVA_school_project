@@ -5,25 +5,78 @@ import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 
+import LandingImg from "../../assets/landing.svg";
+
 import { CustomButton, CustomTextField } from "./landingpage.style";
 
 export default function LandingPage() {
   return (
     <>
-      <Container
-        maxWidth="lg"
+      <Box
         sx={{
-          justifyContent: "flex-end",
+          flexDirection: "row",
+          justifyContent: "space-between",
           alignItems: "center",
           display: "flex",
+          backgroundImage: `url(${LandingImg})`,
+          backgroundRepeat: "repeat",
         }}
       >
         <Box
           sx={{
+            display: "flex",
+            flexGrow: 2,
+            height: "100vh",
+            justifyContent: "space-between",
+            flexDirection: "column",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#ffffff",
+                fontFamily: "monospace",
+                fontSize: "h4.fontSize",
+                textAlign: "center",
+                padding: 4,
+                paddingBottom: 1,
+              }}
+            >
+              Library
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexGrow: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#ffffff",
+                fontFamily: "monospace",
+                fontSize: "h3.fontSize",
+                textAlign: "left",
+                padding: 4,
+                paddingBottom: 1,
+              }}
+            >
+              Lire un bon livre, <br />c'est faire une rencontre
+            </Typography>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            flexGrow: 1,
             boxSizing: "border-box",
             height: "100vh",
             width: "40vw",
-            padding: "5% 20px 20% 20px",
+            padding: "5% 7% 20% 20px",
             display: "flex",
           }}
         >
@@ -119,7 +172,7 @@ export default function LandingPage() {
             </Box>
           </Box>
         </Box>
-      </Container>
+      </Box>
     </>
   );
 }
