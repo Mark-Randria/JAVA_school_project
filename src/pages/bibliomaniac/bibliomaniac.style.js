@@ -18,7 +18,7 @@ export const CustomTextField = styled(TextField)`
     & .MuiInput-underline:before,
     & .MuiInput-underline:hover:before,
     & .MuiInput-underline::after {
-      background-color: transparent;
+      background-color: white;
     }
 
     & .MuiInputBase-input::placeholder {
