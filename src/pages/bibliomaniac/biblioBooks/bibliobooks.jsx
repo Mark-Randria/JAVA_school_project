@@ -12,14 +12,13 @@ import { CustomButton, CustomTextField } from "../bibliomaniac.style";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 
 import Popups from "../../../components/popup/popup";
 import Alert from "../../../components/alerts/alert";
 
 import { BASE_URL } from "../../../services/constant/url";
 
-import ReaderImg from "../../../assets/lecteur.svg";
+import PretImg from "../../../assets/pret.svg";
 
 export default function Bibliobooks() {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -28,9 +27,9 @@ export default function Bibliobooks() {
 
   const [open, setOpen] = React.useState(false);
 
-  const [selectedLecteur, setSelectedLecteur] = React.useState("");
-  const [lecteur, setLecteur] = React.useState("");
-  const [idLecteur, setIdLecteur] = React.useState(null);
+  const [selectedLivre, setSelectedLivre] = React.useState("");
+  const [livre, setLivre] = React.useState("");
+  const [idLivre, setIdLivre] = React.useState(null);
 
   const [description, setDescription] = React.useState("");
   const [title, setTitle] = React.useState("");
@@ -38,37 +37,67 @@ export default function Bibliobooks() {
   const [rows, setRows] = React.useState([]);
   const [selectedRow, setSelectedRow] = React.useState([]);
 
-  const [data, setData] = React.useState(null);
-
   const [message, setMessage] = React.useState("");
   const [severity, setSeverity] = React.useState("");
 
   const Navigate = useNavigate();
+  const Location = useLocation();
+
+  const sendedData = Location.state && Location.state.rowData;
+  const username = Location.state && Location.state.name;
+
+  function createData(Data) {
+    const jsonData = Object.values(Data).map((item) => {
+      return {
+        idlivre: item.livre.id,
+        titrelivre: item.livre.titre,
+        auteurlivre: item.livre.auteur,
+        datepret: item.datePret,
+        dateretour: item.dateRetour,
+      };
+    });
+
+    return jsonData;
+  }
+
+  const result = createData(sendedData);
+  console.log(username);
+  console.log(sendedData);
+  console.log(result);
 
   const columns = [
     {
-      field: "id",
-      headerName: "Matricule",
+      field: "idlivre",
+      headerName: "Numero de livre",
       flex: 2,
       editable: false,
     },
     {
-      field: "name",
-      headerName: "Nom",
+      field: "titrelivre",
+      headerName: "Titre du livre",
       flex: 2,
       editable: false,
     },
     {
-      field: "nbPret",
-      headerName: "Nombre de pret",
+      field: "auteurlivre",
+      headerName: "Auteur",
       flex: 2,
       editable: false,
     },
     {
-      field: "amende",
-      headerName: "Amende",
+      field: "datepret",
+      headerName: "Date de pret",
       flex: 2,
       editable: false,
+    },
+    {
+      field: "dateretour",
+      headerName: "Date de retour",
+      sortable: false,
+      editable: false,
+      flex: 3,
+      valueGetter: (params) =>
+        params.row.dateretour ? "retourne" : "non retourne",
     },
     {
       field: "actions",
@@ -98,38 +127,10 @@ export default function Bibliobooks() {
           >
             <DeleteIcon />
           </Button>
-          <Box
-            sx={{
-              width: 10,
-            }}
-          />
-          <Button
-            variant="contained"
-            color="info"
-            size="small"
-            onClick={() => handleShow(params.row)}
-          >
-            <LibraryBooksIcon />
-          </Button>
         </>
       ),
     },
   ];
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/lecteurs`);
-        setData(response.data);
-        setRows(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const handleRoutes = (route) => {
     Navigate(route);
@@ -164,29 +165,29 @@ export default function Bibliobooks() {
     setOpen(false);
   };
 
-  const handleChangeLecteurs = (event) => {
-    setSelectedLecteur(event.target.value);
+  const handleChangeLivre = (event) => {
+    setSelectedLivre(event.target.value);
   };
 
   const handleAdd = () => {
-    setSelectedLecteur("");
+    setSelectedLivre("");
     openModal();
-    setTitle("Ajout d'un lecteur");
-    setDescription("Veuiller ajouter un nouveau lecteur");
+    setTitle("Ajout d'un livre");
+    setDescription("Veuiller ajouter un nouveau livre");
   };
 
-  const handleAddLecteur = (event) => {
+  const handleAddLivre = (event) => {
     event.preventDefault();
-    if (!selectedLecteur) {
+    if (!selectedLivre) {
       setMessage("Veuillez remplir le formulaire");
       setSeverity("error");
       ShowAlert();
     } else {
       const data = {
-        name: selectedLecteur,
+        name: selectedLivre,
       };
       axios
-        .post(`${BASE_URL}/lecteurs`, data)
+        .post(`${BASE_URL}/livre`, data)
         .then((response) => {
           setMessage("Le lecteur a bien ete ajoute");
           setSeverity("success");
@@ -200,32 +201,32 @@ export default function Bibliobooks() {
   };
 
   const handleChange = (row) => {
-    setLecteur(row.name);
-    setIdLecteur(row.id);
+    setLivre(row.name);
+    setIdLivre(row.id);
     openModalA();
-    setTitle("Modification d'un lecteur");
+    setTitle("Modification d'un livre");
     setDescription("Veuillez ajouter une nouvelle valeur");
     setSelectedRow(row);
   };
 
-  const handleModifyLecteur = (event) => {
-    setLecteur(event.target.value);
+  const handleModifyLivre = (event) => {
+    setLivre(event.target.value);
   };
 
   const handleSubmitModify = async (event) => {
     event.preventDefault();
-    if (!lecteur) {
+    if (!livre) {
       setMessage("Veuillez remplir le formulaire");
       setSeverity("error");
       ShowAlert();
     } else {
       const data = {
-        name: lecteur,
+        name: livre,
       };
       axios
-        .put(`${BASE_URL}/lecteurs/id=${idLecteur}`, data)
+        .put(`${BASE_URL}/lecteurs/id=${idLivre}`, data)
         .then((response) => {
-          setMessage("Le lecteur a bien ete modifie");
+          setMessage("Le livre a bien ete modifie");
           setSeverity("success");
           ShowAlert();
           closeModal();
@@ -237,23 +238,23 @@ export default function Bibliobooks() {
   };
 
   const HandleDelete = (row) => {
-    setIdLecteur(row.id);
+    setIdLivre(row.id);
     openModalB();
-    setTitle("Suppression d'un lecteur");
+    setTitle("Suppression d'un livre");
     setDescription("Etes-vous sur de vouloir confirmer la suppression");
   };
 
   const handleSubmitDelete = async (event) => {
     event.preventDefault();
-    if (!idLecteur) {
+    if (!idLivre) {
       setMessage("Erreur, donnees introuvable");
       setSeverity("error");
       ShowAlert();
     } else {
       axios
-        .delete(`${BASE_URL}/lecteurs/id=${idLecteur}`)
+        .delete(`${BASE_URL}/livres/${idLivre}`)
         .then((response) => {
-          setMessage("Le lecteur a bien ete retire");
+          setMessage("Le livre a bien ete retire");
           setSeverity("info");
           ShowAlert();
           closeModal();
@@ -264,27 +265,23 @@ export default function Bibliobooks() {
     }
   };
 
-  const handleShow = (row) => {
-    console.log(row);
-  };
-
   const handleReset = () => {
-    setSelectedLecteur("");
-    setLecteur("");
+    setSelectedLivre("");
+    setLivre("");
   };
 
   const handleAddJSX = (
     <>
-      <InputLabel id="Lecteur-label">Nom du lecteur</InputLabel>
+      <InputLabel id="Livre-label">Nom du livre</InputLabel>
       <Box
         sx={{
           height: 10,
         }}
       />
       <CustomTextField
-        id="Lecteur-label"
-        value={selectedLecteur}
-        onChange={handleChangeLecteurs}
+        id="Livre-label"
+        value={selectedLivre}
+        onChange={handleChangeLivre}
         autoComplete="off"
         fullWidth
       />
@@ -304,7 +301,7 @@ export default function Bibliobooks() {
           variant="contained"
           color="primary"
           size="medium"
-          onClick={handleAddLecteur}
+          onClick={handleAddLivre}
         >
           Ajouter
         </Button>
@@ -327,7 +324,7 @@ export default function Bibliobooks() {
 
   const handleChangeJSX = (
     <>
-      <InputLabel id="Lecteur-label">Nom du lecteur</InputLabel>
+      <InputLabel id="Livre-label">Nom du livre</InputLabel>
       <Box
         sx={{
           height: 10,
@@ -335,8 +332,8 @@ export default function Bibliobooks() {
       />
       <CustomTextField
         id="Lecteur-label"
-        value={lecteur}
-        onChange={handleModifyLecteur}
+        value={livre}
+        onChange={handleModifyLivre}
         autoComplete="off"
         fullWidth
       />
@@ -458,10 +455,10 @@ export default function Bibliobooks() {
         >
           <Box
             sx={{
-              marginLeft: 5,
+              marginLeft: 0,
             }}
           >
-            <img src={ReaderImg} alt="Books" width="478px" height="351px" />
+            <img src={PretImg} alt="Books" width="378px" height="400px" />
           </Box>
           <Box
             sx={{
@@ -476,20 +473,6 @@ export default function Bibliobooks() {
             <CustomButton
               size="large"
               variant="contained"
-              onClick={() => handleRoutes("/Books")}
-            >
-              <Typography
-                sx={{
-                  fontFamily: "monospace",
-                  fontWeight: 400,
-                }}
-              >
-                Livres
-              </Typography>
-            </CustomButton>
-            <CustomButton
-              size="large"
-              variant="contained"
               onClick={() => handleRoutes("/Bibliomaniac")}
             >
               <Typography
@@ -498,21 +481,7 @@ export default function Bibliobooks() {
                   fontWeight: 400,
                 }}
               >
-                Lecteurs
-              </Typography>
-            </CustomButton>
-            <CustomButton
-              size="large"
-              variant="contained"
-              onClick={() => handleRoutes("/Loans")}
-            >
-              <Typography
-                sx={{
-                  fontFamily: "monospace",
-                  fontWeight: 400,
-                }}
-              >
-                Pret
+                Retourner
               </Typography>
             </CustomButton>
           </Box>
@@ -535,7 +504,7 @@ export default function Bibliobooks() {
               paddingBottom: 8,
             }}
           >
-            Bibliomane
+            Ouvrages
           </Typography>
           <Box
             sx={{
@@ -556,16 +525,16 @@ export default function Bibliobooks() {
                   color: "#ffffff",
                   fontFamily: "monospace",
                   fontSize: "h4.fontSize",
-                  textAlign: "center",
+                  textAlign: "left",
                 }}
               >
-                Listes des lecteurs
+                Listes des livres <br /> du lecteur {username}
               </Typography>
             </Box>
             <Box
               sx={{
                 display: "flex",
-                flexGrow: 2,
+                flexGrow: 1,
               }}
             >
               <CustomTextField
@@ -579,7 +548,8 @@ export default function Bibliobooks() {
             </Box>
           </Box>
           <DataGrid
-            rows={rows}
+            rows={result}
+            getRowId={(result) => result.idlivre}
             columns={columns}
             localeText={frFR.components.MuiDataGrid.defaultProps.localeText}
             initialState={{
@@ -607,7 +577,7 @@ export default function Bibliobooks() {
                   fontWeight: 400,
                 }}
               >
-                Ajouter un nouveau lecteur
+                Retourner un livre
               </Typography>
             </CustomButton>
           </Box>

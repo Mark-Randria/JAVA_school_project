@@ -272,7 +272,7 @@ export default function Bibliomaniac() {
 
   const handleShow = (row) => {
     console.log(row);
-    Navigate("/Bibliomaniac/Bibliobooks", { state: { rowData: row } });
+    Navigate("/Bibliomaniac/Bibliobooks", { state: { rowData: row.prets, name: row.name } });
   };
 
   const handleReset = () => {
