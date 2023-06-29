@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -24,6 +25,9 @@ export default function Readers() {
   const [selectedRow, setSelectedRow] = React.useState([]);
 
   const [data, setData] = React.useState(null);
+
+  const Navigate = useNavigate();
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,9 +42,11 @@ export default function Readers() {
     fetchData();
   }, []);
 
-  if (data === null) return <>Loading...</>;
 
-  console.log(data);
+  const handleRoutes = (route) => {
+    Navigate(route);
+  };
+
   return (
     <>
       <Box
@@ -68,7 +74,11 @@ export default function Readers() {
               flexDirection: "column",
             }}
           >
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Books")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -78,7 +88,11 @@ export default function Readers() {
                 Livres
               </Typography>
             </CustomButton>
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Bibliomaniac")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -88,7 +102,11 @@ export default function Readers() {
                 Lecteurs
               </Typography>
             </CustomButton>
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Loans")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",

@@ -62,7 +62,7 @@ export default function LandingPage() {
             setMessage("Connexion reussie");
             setSeverity("success");
             handleClick();
-            Navigate("/Dashboard");
+            Navigate("/Books");
             setUser("");
             setPassword("");
             setMessage("");

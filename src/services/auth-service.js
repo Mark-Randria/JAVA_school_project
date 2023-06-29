@@ -11,7 +11,7 @@ let login = async (identity, password) => {
   );
   let user = response.data[0];
   if (user) {
-    const expirationTime = Date.now() + 1 * 5 * 1000;
+    const expirationTime = Date.now() + 60 * 60 * 1000;
     const FakeToken = {
       user: user.identity,
       token: "fake-token",

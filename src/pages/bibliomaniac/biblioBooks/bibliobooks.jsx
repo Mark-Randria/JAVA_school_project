@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -8,20 +8,20 @@ import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
 import { DataGrid, frFR } from "@mui/x-data-grid";
 
-import { CustomButton, CustomTextField } from "./bibliomaniac.style";
+import { CustomButton, CustomTextField } from "../bibliomaniac.style";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 
-import Popups from "../../components/popup/popup";
-import Alert from "../../components/alerts/alert";
+import Popups from "../../../components/popup/popup";
+import Alert from "../../../components/alerts/alert";
 
-import { BASE_URL } from "../../services/constant/url";
+import { BASE_URL } from "../../../services/constant/url";
 
-import ReaderImg from "../../assets/lecteur.svg";
+import ReaderImg from "../../../assets/lecteur.svg";
 
-export default function Bibliomaniac() {
+export default function Bibliobooks() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isOpenA, setIsOpenA] = React.useState(false);
   const [isOpenB, setIsOpenB] = React.useState(false);
@@ -119,10 +119,7 @@ export default function Bibliomaniac() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/lecteurs`, {
-          "Accept" : "*/*",
-          "Content-Type": "application/json",
-        });
+        const response = await axios.get(`${BASE_URL}/lecteurs`);
         setData(response.data);
         setRows(response.data);
         console.log(response.data);
@@ -186,13 +183,10 @@ export default function Bibliomaniac() {
       ShowAlert();
     } else {
       const data = {
-        "name" : selectedLecteur,
-      };
-      let headersList = {
-        "Content-Type": "application/json",
+        name: selectedLecteur,
       };
       axios
-        .post(`${BASE_URL}/lecteurs`, data, headersList)
+        .post(`${BASE_URL}/lecteurs`, data)
         .then((response) => {
           setMessage("Le lecteur a bien ete ajoute");
           setSeverity("success");
@@ -226,10 +220,10 @@ export default function Bibliomaniac() {
       ShowAlert();
     } else {
       const data = {
-        "name" : lecteur,
+        name: lecteur,
       };
       axios
-        .put(`${BASE_URL}/lecteurs/${idLecteur}`, data)
+        .put(`${BASE_URL}/lecteurs/id=${idLecteur}`, data)
         .then((response) => {
           setMessage("Le lecteur a bien ete modifie");
           setSeverity("success");
@@ -257,7 +251,7 @@ export default function Bibliomaniac() {
       ShowAlert();
     } else {
       axios
-        .delete(`${BASE_URL}/lecteurs/${idLecteur}`)
+        .delete(`${BASE_URL}/lecteurs/id=${idLecteur}`)
         .then((response) => {
           setMessage("Le lecteur a bien ete retire");
           setSeverity("info");
@@ -272,7 +266,6 @@ export default function Bibliomaniac() {
 
   const handleShow = (row) => {
     console.log(row);
-    Navigate("/Bibliomaniac/Bibliobooks", { state: { rowData: row } });
   };
 
   const handleReset = () => {

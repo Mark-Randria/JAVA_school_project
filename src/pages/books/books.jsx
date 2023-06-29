@@ -1,11 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
 import Button from "@mui/material/Button";
 import { DataGrid, frFR } from "@mui/x-data-grid";
-
 
 import { CustomButton, CustomTextField } from "./books.style";
 import SearchIcon from "@mui/icons-material/Search";
@@ -25,12 +25,15 @@ export default function Books() {
   const [selectedRow, setSelectedRow] = React.useState([]);
 
   const [data, setData] = React.useState(null);
+
+  const Navigate = useNavigate();
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/livres`);
         setData(response.data);
-        setRows(response.data)
+        setRows(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -39,9 +42,14 @@ export default function Books() {
     fetchData();
   }, []);
 
-  if (data === null) return <>Loading...</>;
 
   console.log(data);
+
+
+
+  const handleRoutes = (route) => {
+    Navigate(route);
+  };
 
   const AjoutLivrePopup = () => {
     setOpen(true);
@@ -63,7 +71,6 @@ export default function Books() {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 1, },
     {
       field: "titre",
       headerName: "Titre",
@@ -151,7 +158,11 @@ export default function Books() {
               flexDirection: "column",
             }}
           >
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Books")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -161,7 +172,11 @@ export default function Books() {
                 Livres
               </Typography>
             </CustomButton>
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Bibliomaniac")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -171,7 +186,11 @@ export default function Books() {
                 Lecteurs
               </Typography>
             </CustomButton>
-            <CustomButton size="large" variant="contained">
+            <CustomButton
+              size="large"
+              variant="contained"
+              onClick={() => handleRoutes("/Loans")}
+            >
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -188,6 +207,7 @@ export default function Books() {
             display: "flex",
             flexGrow: 1,
             flexDirection: "column",
+            marginRight: 5,
           }}
         >
           <Typography
@@ -222,7 +242,6 @@ export default function Books() {
                   fontFamily: "monospace",
                   fontSize: "h4.fontSize",
                   textAlign: "center",
-                  marginLeft: 4,
                 }}
               >
                 Listes des livres
@@ -232,7 +251,6 @@ export default function Books() {
               sx={{
                 display: "flex",
                 flexGrow: 2,
-                marginRight: 5,
               }}
             >
               <CustomTextField
@@ -277,6 +295,7 @@ export default function Books() {
               display: "flex",
               flexDirection: "row-reverse",
               padding: 4,
+              paddingRight: 0,
             }}
           >
             <CustomButton size="small" variant="contained">

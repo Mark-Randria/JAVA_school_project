@@ -5,7 +5,14 @@ import Typography from "@mui/material/Typography";
 
 import { CustomButton, CustomTextField, style } from "./popup.style";
 
-export default function Popups({ description, handleClose, open, data }) {
+export default function Popups({
+  description,
+  handleClose,
+  open,
+  title,
+  data,
+  inputComponents,
+}) {
   return (
     <>
       <div>
@@ -23,20 +30,27 @@ export default function Popups({ description, handleClose, open, data }) {
                   fontFamily: "monospace",
                   fontSize: "h3.fontSize",
                   textAlign: "center",
-                  padding: 4,
-                  paddingBottom: 8,
+                  paddingBottom: 4,
                 }}
               >
-                {description}
+                {title}
               </Typography>
             </Typography>
-            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              {console.log(data)}
+            <Typography
+              id="modal-modal-description"
+              sx={{ mt: 2, fontSize: "h4.fontSize" }}
+            >
+              {description}
             </Typography>
+            <Box
+              sx={{
+                height: 30,
+              }}
+            />
+            {inputComponents}
           </Box>
         </Modal>
       </div>
-      <Box></Box>
     </>
   );
 }

@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 export const CustomButton = styled(Button)`
   background-color: #592720;
   border-radius: 1rem;
-  height: 3.5rem;
+  height: 3rem;
   :hover {
     background-color: ${darken("#592720", 0.1)};
   }
@@ -18,11 +18,12 @@ export const CustomTextField = styled(TextField)`
     & .MuiInput-underline:before,
     & .MuiInput-underline:hover:before,
     & .MuiInput-underline::after {
-      background-color: white;
+      background-color: transparent;
     }
 
     & .MuiInputBase-input::placeholder {
-      color: gray;
+      color: #ffffff;
     }
   }
 `;
+
