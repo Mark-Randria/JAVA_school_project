@@ -34,6 +34,8 @@ export default function Books() {
   const [auteur, setAuteur] = React.useState("");
   const [date, setDate] = React.useState("");
 
+  const [searchLivre, setSearchLivre] = React.useState("");
+
   const [description, setDescription] = React.useState("");
   const [title, setTitle] = React.useState("");
 
@@ -94,6 +96,10 @@ export default function Books() {
 
   const handleRoutes = (route) => {
     Navigate(route);
+  };
+
+  const handleSearchLivre = (event) => {
+    setSearchLivre(event.target.value);
   };
 
   const handleChangeLivre = (event) => {
@@ -232,6 +238,36 @@ export default function Books() {
           setSeverity("error");
           ShowAlert();
         });
+    }
+  };
+
+  const handleSearchSubmit = async (event) => {
+    event.preventDefault();
+    if (!searchLivre) {
+      setMessage("Retour a la valeur d'origine");
+      setSeverity("info");
+      ShowAlert();
+      try {
+        const response = await axios.get(`${BASE_URL}/livres`);
+        if (response.data && response.status === 200) {
+          setRows(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      let search = searchLivre;
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/livres/search?query=${search}`
+        );
+        if (response.data && response.status === 200) {
+          console.log(search);
+          setRows(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -673,9 +709,11 @@ export default function Books() {
               }}
             >
               <CustomTextField
-                id="password"
+                id="searchfield"
                 label=""
-                placeholder="Ex: Kamasutra"
+                placeholder="Ex: Don't cry"
+                value={searchLivre}
+                onChange={handleSearchLivre}
                 type="text"
                 variant="outlined"
                 InputProps={{
@@ -687,6 +725,27 @@ export default function Books() {
                 }}
                 fullWidth
               />
+              <Box
+                sx={{
+                  boxSizing: "border-box",
+                  padding: "0 16px",
+                }}
+              >
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  onClick={handleSearchSubmit}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: "monospace",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Rechercher un livre
+                  </Typography>
+                </CustomButton>
+              </Box>
             </Box>
           </Box>
           <DataGrid
@@ -696,11 +755,11 @@ export default function Books() {
             initialState={{
               pagination: {
                 paginationModel: {
-                  pageSize: 5,
+                  pageSize: 4,
                 },
               },
             }}
-            pageSizeOptions={[5, 10]}
+            pageSizeOptions={[4, 8]}
             disableRowSelectionOnClick
           />
           <Box
