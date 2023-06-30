@@ -60,19 +60,19 @@ export default function Bibliomaniac() {
     },
     {
       field: "nbPret",
-      headerName: "Nombre de pret",
+      headerName: "Livre",
       flex: 2,
       editable: false,
     },
     {
       field: "amende",
-      headerName: "Amende",
+      headerName: "Amende (en Fmg)",
       flex: 2,
       editable: false,
     },
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: "",
       sortable: false,
       flex: 3,
       renderCell: (params) => (
@@ -120,7 +120,7 @@ export default function Bibliomaniac() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/lecteurs`, {
-          "Accept" : "*/*",
+          Accept: "*/*",
           "Content-Type": "application/json",
         });
         setData(response.data);
@@ -178,7 +178,7 @@ export default function Bibliomaniac() {
     setDescription("Veuiller ajouter un nouveau lecteur");
   };
 
-  const handleAddLecteur = (event) => {
+  const handleAddLecteur = async (event) => {
     event.preventDefault();
     if (!selectedLecteur) {
       setMessage("Veuillez remplir le formulaire");
@@ -186,7 +186,7 @@ export default function Bibliomaniac() {
       ShowAlert();
     } else {
       const data = {
-        "name" : selectedLecteur,
+        name: selectedLecteur,
       };
       let headersList = {
         "Content-Type": "application/json",
@@ -198,6 +198,9 @@ export default function Bibliomaniac() {
           setSeverity("success");
           ShowAlert();
           closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         })
         .catch((error) => {
           console.log(error);
@@ -226,7 +229,7 @@ export default function Bibliomaniac() {
       ShowAlert();
     } else {
       const data = {
-        "name" : lecteur,
+        name: lecteur,
       };
       axios
         .put(`${BASE_URL}/lecteurs/${idLecteur}`, data)
@@ -235,6 +238,9 @@ export default function Bibliomaniac() {
           setSeverity("success");
           ShowAlert();
           closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         })
         .catch((error) => {
           console.log(error);
@@ -263,16 +269,24 @@ export default function Bibliomaniac() {
           setSeverity("info");
           ShowAlert();
           closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         })
         .catch((error) => {
           console.log(error);
+          setMessage(error.response.data.message);
+          setSeverity("error");
+          ShowAlert();
         });
     }
   };
 
   const handleShow = (row) => {
     console.log(row);
-    Navigate("/Bibliomaniac/Bibliobooks", { state: { rowData: row.prets, name: row.name } });
+    Navigate("/Bibliomaniac/Bibliobooks", {
+      state: { rowData: row.prets, name: row.name, id: row.id },
+    });
   };
 
   const handleReset = () => {

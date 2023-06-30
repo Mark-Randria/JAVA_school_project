@@ -4,6 +4,7 @@ import axios from "axios";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import InputAdornment from "@mui/material/InputAdornment";
+import InputLabel from "@mui/material/InputLabel";
 import Button from "@mui/material/Button";
 import { DataGrid, frFR } from "@mui/x-data-grid";
 
@@ -14,15 +15,33 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import BooksImg from "../../assets/bookspage.svg";
 import Popups from "../../components/popup/popup";
+import Alert from "../../components/alerts/alert";
 
 import { BASE_URL } from "../../services/constant/url";
 
 export default function Books() {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpenA, setIsOpenA] = React.useState(false);
+  const [isOpenB, setIsOpenB] = React.useState(false);
+
   const [open, setOpen] = React.useState(false);
+
+  const [selectedLivre, setSelectedLivre] = React.useState("");
+  const [selectedAuteur, setSelectedAuteur] = React.useState("");
+  const [selectedDate, setSelectedDate] = React.useState("");
+  const [livre, setLivre] = React.useState("");
+  const [idLivre, setIdLivre] = React.useState(null);
+  const [auteur, setAuteur] = React.useState("");
+  const [date, setDate] = React.useState("");
+
   const [description, setDescription] = React.useState("");
+  const [title, setTitle] = React.useState("");
 
   const [rows, setRows] = React.useState([]);
   const [selectedRow, setSelectedRow] = React.useState([]);
+
+  const [message, setMessage] = React.useState("");
+  const [severity, setSeverity] = React.useState("");
 
   const [data, setData] = React.useState(null);
 
@@ -42,45 +61,200 @@ export default function Books() {
     fetchData();
   }, []);
 
-
   console.log(data);
 
+  const openModal = () => {
+    setIsOpen(true);
+  };
 
+  const openModalA = () => {
+    setIsOpenA(true);
+  };
+
+  const openModalB = () => {
+    setIsOpenB(true);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setIsOpenA(false);
+    setIsOpenB(false);
+  };
+
+  const ShowAlert = () => {
+    setOpen(true);
+  };
+
+  const CloseAlert = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   const handleRoutes = (route) => {
     Navigate(route);
   };
 
-  const AjoutLivrePopup = () => {
-    setOpen(true);
-    setDescription("Ajouter un livre");
+  const handleChangeLivre = (event) => {
+    setSelectedLivre(event.target.value);
   };
 
-  const handleClose = () => setOpen(false);
+  const handleChangeAuteur = (event) => {
+    setSelectedAuteur(event.target.value);
+  };
+
+  const handleChangeDate = (event) => {
+    setSelectedDate(event.target.value);
+  };
+
+  const handleAdd = () => {
+    setSelectedLivre("");
+    setSelectedAuteur("");
+    setSelectedDate("");
+    openModal();
+    setTitle("Ajout d'un livre");
+    setDescription("Veuiller ajouter un nouveau livre");
+  };
+
+  const handleLivre = async (event) => {
+    event.preventDefault();
+    if (!selectedLivre || !selectedAuteur || !selectedDate) {
+      setMessage("Veuillez remplir le formulaire");
+      setSeverity("error");
+      ShowAlert();
+    } else {
+      const data = {
+        titre: selectedLivre,
+        auteur: selectedAuteur,
+        dateEdition: selectedDate,
+      };
+      axios
+        .post(`${BASE_URL}/livres`, data)
+        .then((response) => {
+          setMessage("Le livre a bien ete ajoute");
+          setSeverity("success");
+          ShowAlert();
+          closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        })
+        .catch((error) => {
+          console.log(error);
+          setMessage(error.response.data.message);
+          setSeverity("error");
+          ShowAlert();
+        });
+    }
+  };
 
   const handleChange = (row) => {
-    console.log("Changed clicked for row:", row);
-    setOpen(true);
-    setDescription("Modification d'un livre");
+    setLivre(row.titre);
+    setIdLivre(row.id);
+    setAuteur(row.auteur);
+    setDate(row.dateEdition);
+    openModalA();
+    setTitle("Modification d'un livre");
+    setDescription("Veuillez ajouter une nouvelle valeur");
     setSelectedRow(row);
+  };
+
+  const handleModifyLivre = (event) => {
+    setLivre(event.target.value);
+  };
+
+  const handleModifyAuteur = (event) => {
+    setAuteur(event.target.value);
+  };
+
+  const handleModifyDate = (event) => {
+    setDate(event.target.value);
+  };
+
+  const handleSubmitModify = async (event) => {
+    event.preventDefault();
+    if (!livre || !auteur || !date) {
+      setMessage("Veuillez remplir le formulaire");
+      setSeverity("error");
+      ShowAlert();
+    } else {
+      const data = {
+        titre: livre,
+        auteur: auteur,
+        dateEdition: date,
+      };
+      axios
+        .put(`${BASE_URL}/livres/${idLivre}`, data)
+        .then((response) => {
+          setMessage("Le livre a bien ete modifie");
+          setSeverity("success");
+          ShowAlert();
+          closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
   };
 
   const HandleDelete = (row) => {
-    console.log("Delete clicked for row:", row);
-    setSelectedRow(row);
+    setIdLivre(row.id);
+    openModalB();
+    setTitle("Suppression d'un livre");
+    setDescription("Etes-vous sur de vouloir confirmer la suppression");
+  };
+
+  const handleSubmitDelete = async (event) => {
+    event.preventDefault();
+    if (!idLivre) {
+      setMessage("Erreur, donnees introuvable");
+      setSeverity("error");
+      ShowAlert();
+    } else {
+      axios
+        .delete(`${BASE_URL}/livres/${idLivre}`)
+        .then((response) => {
+          setMessage("Le livre a bien ete retire");
+          setSeverity("info");
+          ShowAlert();
+          closeModal();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        })
+        .catch((error) => {
+          console.log(error);
+          setMessage(error.response.data.message);
+          setSeverity("error");
+          ShowAlert();
+        });
+    }
+  };
+
+  const handleReset = () => {
+    setSelectedLivre("");
+    setSelectedAuteur("");
+    setSelectedDate("");
+    setLivre("");
+    setAuteur("");
+    setDate("");
   };
 
   const columns = [
     {
       field: "titre",
       headerName: "Titre",
-      flex: 1,
+      flex: 1.5,
       editable: false,
     },
     {
       field: "auteur",
       headerName: "Auteur",
-      flex: 1,
+      flex: 1.5,
       editable: false,
     },
     {
@@ -95,12 +269,18 @@ export default function Books() {
       headerName: "Disponibilite",
       description: "This column has a value getter and is not sortable.",
       sortable: false,
-      flex: 3,
+      flex: 2,
       valueGetter: (params) => (params.row.disponible ? "oui" : "non"),
     },
     {
+      field: "nbPret",
+      headerName: "Nombre de prets",
+      flex: 2,
+      editable: false,
+    },
+    {
       field: "actions",
-      headerName: "Actions",
+      headerName: "",
       sortable: false,
       flex: 3,
       renderCell: (params) => (
@@ -131,6 +311,221 @@ export default function Books() {
     },
   ];
 
+  const handleAddJSX = (
+    <>
+      <InputLabel id="Livre-label">Nom du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Livre-label"
+        value={selectedLivre}
+        onChange={handleChangeLivre}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <InputLabel id="Auteur-label">Auteur du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Auteur-label"
+        value={selectedAuteur}
+        onChange={handleChangeAuteur}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <InputLabel id="Date-label">Date d'edition du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Date-label"
+        value={selectedDate}
+        onChange={handleChangeDate}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          size="medium"
+          onClick={handleLivre}
+        >
+          Ajouter
+        </Button>
+        <Box
+          sx={{
+            width: 10,
+          }}
+        />
+        <Button
+          variant="contained"
+          color="error"
+          size="medium"
+          onClick={closeModal}
+        >
+          Annuler
+        </Button>
+      </Box>
+    </>
+  );
+
+  const handleChangeJSX = (
+    <>
+      <InputLabel id="Livre-label">Nom du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Livre-label"
+        value={livre}
+        onChange={handleModifyLivre}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <InputLabel id="Auteur-label">Auteur du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Auteur-label"
+        value={auteur}
+        onChange={handleModifyAuteur}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <InputLabel id="Date-label">Date d'edition du livre</InputLabel>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <CustomTextField
+        id="Date-label"
+        value={date}
+        onChange={handleModifyDate}
+        autoComplete="off"
+        fullWidth
+      />
+      <Box
+        sx={{
+          height: 20,
+        }}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="primary"
+          size="medium"
+          onClick={handleSubmitModify}
+        >
+          Enregistrer
+        </Button>
+        <Box
+          sx={{
+            width: 10,
+          }}
+        />
+        <Button
+          variant="contained"
+          color="error"
+          size="medium"
+          onClick={handleReset}
+        >
+          Effacer
+        </Button>
+      </Box>
+    </>
+  );
+
+  const handleDeleteJSX = (
+    <>
+      <Box
+        sx={{
+          height: 10,
+        }}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          variant="contained"
+          color="error"
+          size="medium"
+          onClick={handleSubmitDelete}
+        >
+          Confirmer
+        </Button>
+        <Box
+          sx={{
+            width: 10,
+          }}
+        />
+        <Button
+          variant="contained"
+          color="info"
+          size="medium"
+          onClick={closeModal}
+        >
+          Annuler
+        </Button>
+      </Box>
+    </>
+  );
+
   return (
     <>
       <Box
@@ -141,6 +536,30 @@ export default function Books() {
           bgcolor: "#B2A496",
         }}
       >
+        <Popups
+          open={isOpen}
+          handleClose={closeModal}
+          title={title}
+          description={description}
+          data={selectedRow}
+          inputComponents={handleAddJSX}
+        />
+        <Popups
+          open={isOpenA}
+          handleClose={closeModal}
+          title={title}
+          description={description}
+          data={selectedRow}
+          inputComponents={handleChangeJSX}
+        />
+        <Popups
+          open={isOpenB}
+          handleClose={closeModal}
+          title={title}
+          description={description}
+          data={selectedRow}
+          inputComponents={handleDeleteJSX}
+        />
         <Box
           sx={{
             display: "flex",
@@ -268,12 +687,6 @@ export default function Books() {
                 }}
                 fullWidth
               />
-              <Popups
-                description={description}
-                handleClose={handleClose}
-                open={open}
-                data={selectedRow}
-              />
             </Box>
           </Box>
           <DataGrid
@@ -283,11 +696,11 @@ export default function Books() {
             initialState={{
               pagination: {
                 paginationModel: {
-                  pageSize: 8,
+                  pageSize: 5,
                 },
               },
             }}
-            pageSizeOptions={[8]}
+            pageSizeOptions={[5, 10]}
             disableRowSelectionOnClick
           />
           <Box
@@ -298,7 +711,7 @@ export default function Books() {
               paddingRight: 0,
             }}
           >
-            <CustomButton size="small" variant="contained">
+            <CustomButton size="small" variant="contained" onClick={handleAdd}>
               <Typography
                 sx={{
                   fontFamily: "monospace",
@@ -310,6 +723,12 @@ export default function Books() {
             </CustomButton>
           </Box>
         </Box>
+        <Alert
+          open={open}
+          setOpen={setOpen}
+          message={message}
+          severity={severity}
+        />
       </Box>
     </>
   );

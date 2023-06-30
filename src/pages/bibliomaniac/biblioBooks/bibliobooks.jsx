@@ -22,8 +22,6 @@ import PretImg from "../../../assets/pret.svg";
 
 export default function Bibliobooks() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [isOpenA, setIsOpenA] = React.useState(false);
-  const [isOpenB, setIsOpenB] = React.useState(false);
 
   const [open, setOpen] = React.useState(false);
 
@@ -45,6 +43,7 @@ export default function Bibliobooks() {
 
   const sendedData = Location.state && Location.state.rowData;
   const username = Location.state && Location.state.name;
+  const userid = Location.state && Location.state.id;
 
   function createData(Data) {
     const jsonData = Object.values(Data).map((item) => {
@@ -53,6 +52,7 @@ export default function Bibliobooks() {
         titrelivre: item.livre.titre,
         auteurlivre: item.livre.auteur,
         datepret: item.datePret,
+        dateedition: item.livre.dateEdition,
         dateretour: item.dateRetour,
       };
     });
@@ -67,12 +67,6 @@ export default function Bibliobooks() {
 
   const columns = [
     {
-      field: "idlivre",
-      headerName: "Numero de livre",
-      flex: 2,
-      editable: false,
-    },
-    {
       field: "titrelivre",
       headerName: "Titre du livre",
       flex: 2,
@@ -85,6 +79,12 @@ export default function Bibliobooks() {
       editable: false,
     },
     {
+      field: "dateedition",
+      headerName: "Date d'edition",
+      flex: 2,
+      editable: false,
+    },
+    {
       field: "datepret",
       headerName: "Date de pret",
       flex: 2,
@@ -92,7 +92,7 @@ export default function Bibliobooks() {
     },
     {
       field: "dateretour",
-      headerName: "Date de retour",
+      headerName: "Situation du livre",
       sortable: false,
       editable: false,
       flex: 3,
@@ -101,32 +101,36 @@ export default function Bibliobooks() {
     },
     {
       field: "actions",
-      headerName: "Actions",
+      headerName: "",
       sortable: false,
-      flex: 3,
+      flex: 2,
       renderCell: (params) => (
         <>
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            onClick={() => handleChange(params.row)}
-          >
-            <EditIcon />
-          </Button>
           <Box
             sx={{
-              width: 10,
+              display: "flex",
+              boxSizing: "border-box",
             }}
-          />
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            onClick={() => HandleDelete(params.row)}
           >
-            <DeleteIcon />
-          </Button>
+            <CustomButton
+              sx={{
+                height: "35px",
+              }}
+              size="small"
+              variant="contained"
+              disabled={params.row.dateretour !== null ? true : false}
+              onClick={openModal}
+            >
+              <Typography
+                sx={{
+                  fontFamily: "monospace",
+                  fontSize: 16,
+                }}
+              >
+                Rendre
+              </Typography>
+            </CustomButton>
+          </Box>
         </>
       ),
     },
@@ -138,20 +142,12 @@ export default function Bibliobooks() {
 
   const openModal = () => {
     setIsOpen(true);
-  };
-
-  const openModalA = () => {
-    setIsOpenA(true);
-  };
-
-  const openModalB = () => {
-    setIsOpenB(true);
+    setTitle("Retourner un livre");
+    setDescription("Voulez-vous retourner ce livre ?");
   };
 
   const closeModal = () => {
     setIsOpen(false);
-    setIsOpenA(false);
-    setIsOpenB(false);
   };
 
   const ShowAlert = () => {
@@ -165,18 +161,7 @@ export default function Bibliobooks() {
     setOpen(false);
   };
 
-  const handleChangeLivre = (event) => {
-    setSelectedLivre(event.target.value);
-  };
-
-  const handleAdd = () => {
-    setSelectedLivre("");
-    openModal();
-    setTitle("Ajout d'un livre");
-    setDescription("Veuiller ajouter un nouveau livre");
-  };
-
-  const handleAddLivre = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     if (!selectedLivre) {
       setMessage("Veuillez remplir le formulaire");
@@ -200,94 +185,11 @@ export default function Bibliobooks() {
     }
   };
 
-  const handleChange = (row) => {
-    setLivre(row.name);
-    setIdLivre(row.id);
-    openModalA();
-    setTitle("Modification d'un livre");
-    setDescription("Veuillez ajouter une nouvelle valeur");
-    setSelectedRow(row);
-  };
-
-  const handleModifyLivre = (event) => {
-    setLivre(event.target.value);
-  };
-
-  const handleSubmitModify = async (event) => {
-    event.preventDefault();
-    if (!livre) {
-      setMessage("Veuillez remplir le formulaire");
-      setSeverity("error");
-      ShowAlert();
-    } else {
-      const data = {
-        name: livre,
-      };
-      axios
-        .put(`${BASE_URL}/lecteurs/id=${idLivre}`, data)
-        .then((response) => {
-          setMessage("Le livre a bien ete modifie");
-          setSeverity("success");
-          ShowAlert();
-          closeModal();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  };
-
-  const HandleDelete = (row) => {
-    setIdLivre(row.id);
-    openModalB();
-    setTitle("Suppression d'un livre");
-    setDescription("Etes-vous sur de vouloir confirmer la suppression");
-  };
-
-  const handleSubmitDelete = async (event) => {
-    event.preventDefault();
-    if (!idLivre) {
-      setMessage("Erreur, donnees introuvable");
-      setSeverity("error");
-      ShowAlert();
-    } else {
-      axios
-        .delete(`${BASE_URL}/livres/${idLivre}`)
-        .then((response) => {
-          setMessage("Le livre a bien ete retire");
-          setSeverity("info");
-          ShowAlert();
-          closeModal();
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  };
-
-  const handleReset = () => {
-    setSelectedLivre("");
-    setLivre("");
-  };
-
-  const handleAddJSX = (
+  const handleConfirmJSX = (
     <>
-      <InputLabel id="Livre-label">Nom du livre</InputLabel>
       <Box
         sx={{
           height: 10,
-        }}
-      />
-      <CustomTextField
-        id="Livre-label"
-        value={selectedLivre}
-        onChange={handleChangeLivre}
-        autoComplete="off"
-        fullWidth
-      />
-      <Box
-        sx={{
-          height: 20,
         }}
       />
       <Box
@@ -301,98 +203,7 @@ export default function Bibliobooks() {
           variant="contained"
           color="primary"
           size="medium"
-          onClick={handleAddLivre}
-        >
-          Ajouter
-        </Button>
-        <Box
-          sx={{
-            width: 10,
-          }}
-        />
-        <Button
-          variant="contained"
-          color="error"
-          size="medium"
-          onClick={handleReset}
-        >
-          Annuler
-        </Button>
-      </Box>
-    </>
-  );
-
-  const handleChangeJSX = (
-    <>
-      <InputLabel id="Livre-label">Nom du livre</InputLabel>
-      <Box
-        sx={{
-          height: 10,
-        }}
-      />
-      <CustomTextField
-        id="Lecteur-label"
-        value={livre}
-        onChange={handleModifyLivre}
-        autoComplete="off"
-        fullWidth
-      />
-      <Box
-        sx={{
-          height: 20,
-        }}
-      />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          size="medium"
-          onClick={handleSubmitModify}
-        >
-          Enregistrer
-        </Button>
-        <Box
-          sx={{
-            width: 10,
-          }}
-        />
-        <Button
-          variant="contained"
-          color="error"
-          size="medium"
-          onClick={handleReset}
-        >
-          Effacer
-        </Button>
-      </Box>
-    </>
-  );
-
-  const handleDeleteJSX = (
-    <>
-      <Box
-        sx={{
-          height: 10,
-        }}
-      />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Button
-          variant="contained"
-          color="error"
-          size="medium"
-          onClick={handleSubmitDelete}
+          onClick={handleSubmit}
         >
           Confirmer
         </Button>
@@ -429,23 +240,7 @@ export default function Bibliobooks() {
           title={title}
           description={description}
           data={selectedRow}
-          inputComponents={handleAddJSX}
-        />
-        <Popups
-          open={isOpenA}
-          handleClose={closeModal}
-          title={title}
-          description={description}
-          data={selectedRow}
-          inputComponents={handleChangeJSX}
-        />
-        <Popups
-          open={isOpenB}
-          handleClose={closeModal}
-          title={title}
-          description={description}
-          data={selectedRow}
-          inputComponents={handleDeleteJSX}
+          inputComponents={handleConfirmJSX}
         />
         <Box
           sx={{
@@ -510,7 +305,7 @@ export default function Bibliobooks() {
             sx={{
               display: "flex",
               flexDirection: "row",
-              marginBottom: 5,
+              marginBottom: 1,
             }}
           >
             <Box
@@ -528,7 +323,7 @@ export default function Bibliobooks() {
                   textAlign: "left",
                 }}
               >
-                Listes des livres <br /> du lecteur {username}
+                Listes des livres d'un lecteur
               </Typography>
             </Box>
             <Box
@@ -546,6 +341,27 @@ export default function Bibliobooks() {
                 fullWidth
               />
             </Box>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#ffffff",
+                fontFamily: "monospace",
+                fontSize: "h5.fontSize",
+                textAlign: "left",
+                marginTop: -0,
+                marginRight: 25,
+                marginBottom: 2
+              }}
+            >
+              Numero lecteur : {userid}<br />
+              Nom : {username}
+            </Typography>
           </Box>
           <DataGrid
             rows={result}
@@ -569,18 +385,7 @@ export default function Bibliobooks() {
               padding: 4,
               paddingRight: 0,
             }}
-          >
-            <CustomButton size="small" variant="contained" onClick={handleAdd}>
-              <Typography
-                sx={{
-                  fontFamily: "monospace",
-                  fontWeight: 400,
-                }}
-              >
-                Retourner un livre
-              </Typography>
-            </CustomButton>
-          </Box>
+          />
         </Box>
         <Alert
           open={open}

@@ -5,7 +5,7 @@ import TextField from "@mui/material/TextField";
 export const CustomButton = styled(Button)`
   background-color: #592720;
   border-radius: 1rem;
-  height: 3rem;
+  height: 2.8rem;
   :hover {
     background-color: ${darken("#592720", 0.1)};
   }

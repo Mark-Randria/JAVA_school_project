@@ -10,7 +10,6 @@ export default function Popups({
   handleClose,
   open,
   title,
-  data,
   inputComponents,
 }) {
   return (

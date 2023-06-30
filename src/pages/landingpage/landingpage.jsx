@@ -126,6 +126,7 @@ export default function LandingPage() {
             sx={{
               display: "flex",
               flexGrow: 1,
+              maxHeight: "358px"
             }}
           >
             <Typography
