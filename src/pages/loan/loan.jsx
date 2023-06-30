@@ -19,7 +19,7 @@ export default function Loans() {
 
   const [open, setOpen] = React.useState(false);
 
-  const [show, setShow] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   const [selectedLivre, setSelectedLivre] = React.useState("");
   const [selectedLecteur, setSelectedLecteur] = React.useState("");
@@ -37,6 +37,12 @@ export default function Loans() {
         console.log(responseLivre.data, responseLecteur.data);
         setLivreData(responseLivre.data);
         setLecteurData(responseLecteur.data);
+
+        if (!livreData && !lecteurData) {
+          setIsLoading(false);
+        } else {
+          setIsLoading(true);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -44,8 +50,6 @@ export default function Loans() {
 
     fetchData();
   }, []);
-
-  if (livreData === null && lecteurData === null) return <></>;
 
   const ShowAlert = () => {
     setOpen(true);
@@ -96,7 +100,9 @@ export default function Loans() {
     }
   };
 
-  return (
+  return isLoading ? (
+    <>Data is loading.... thank you for your patience</>
+  ) : (
     <>
       <Box
         sx={{
