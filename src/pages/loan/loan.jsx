@@ -89,7 +89,9 @@ export default function Loans() {
           }, 2000);
         })
         .catch((error) => {
-          console.log(error);
+          setMessage(error.response.data.message);
+          setSeverity("error");
+          ShowAlert();
         });
     }
   };

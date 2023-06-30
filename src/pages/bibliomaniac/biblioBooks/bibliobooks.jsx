@@ -48,6 +48,7 @@ export default function Bibliobooks() {
   function createData(Data) {
     const jsonData = Object.values(Data).map((item) => {
       return {
+        idpret: item.id,
         idlivre: item.livre.id,
         titrelivre: item.livre.titre,
         auteurlivre: item.livre.auteur,
@@ -61,8 +62,6 @@ export default function Bibliobooks() {
   }
 
   const result = createData(sendedData);
-  console.log(username);
-  console.log(sendedData);
   console.log(result);
 
   const columns = [
@@ -119,7 +118,7 @@ export default function Bibliobooks() {
               size="small"
               variant="contained"
               disabled={params.row.dateretour !== null ? true : false}
-              onClick={openModal}
+              onClick={() => handleModal(params.row)}
             >
               <Typography
                 sx={{
@@ -142,9 +141,15 @@ export default function Bibliobooks() {
 
   const openModal = () => {
     setIsOpen(true);
+  };
+
+  const handleModal = (row) => {
+    console.log(row);
+    setIdLivre(row.idpret);
     setTitle("Retourner un livre");
     setDescription("Voulez-vous retourner ce livre ?");
-  };
+    openModal();
+  }
 
   const closeModal = () => {
     setIsOpen(false);
@@ -163,21 +168,23 @@ export default function Bibliobooks() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!selectedLivre) {
-      setMessage("Veuillez remplir le formulaire");
+    if (!idLivre) {
+      setMessage("Erreur interne du traitement");
       setSeverity("error");
       ShowAlert();
     } else {
-      const data = {
-        name: selectedLivre,
-      };
+      let id = idLivre;
+      const data = {};
       axios
-        .post(`${BASE_URL}/livre`, data)
+        .post(`${BASE_URL}/prets/retourner/${id}`, data)
         .then((response) => {
-          setMessage("Le lecteur a bien ete ajoute");
+          setMessage("Le livre a ete rendu");
           setSeverity("success");
           ShowAlert();
           closeModal();
+          setTimeout(() => {
+            handleRoutes("/Bibliomaniac");
+          }, 2000);
         })
         .catch((error) => {
           console.log(error);
@@ -356,10 +363,11 @@ export default function Bibliobooks() {
                 textAlign: "left",
                 marginTop: -0,
                 marginRight: 25,
-                marginBottom: 2
+                marginBottom: 2,
               }}
             >
-              Numero lecteur : {userid}<br />
+              Numero lecteur : {userid}
+              <br />
               Nom : {username}
             </Typography>
           </Box>
