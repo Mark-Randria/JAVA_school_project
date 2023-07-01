@@ -333,21 +333,6 @@ export default function Bibliobooks() {
                 Listes des livres d'un lecteur
               </Typography>
             </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexGrow: 1,
-              }}
-            >
-              <CustomTextField
-                id="password"
-                label=""
-                placeholder="Nom"
-                type="text"
-                variant="outlined"
-                fullWidth
-              />
-            </Box>
           </Box>
           <Box
             sx={{

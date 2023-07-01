@@ -711,7 +711,7 @@ export default function Books() {
               <CustomTextField
                 id="searchfield"
                 label=""
-                placeholder="Ex: Don't cry"
+                placeholder="Auteur ou titre du livre"
                 value={searchLivre}
                 onChange={handleSearchLivre}
                 type="text"

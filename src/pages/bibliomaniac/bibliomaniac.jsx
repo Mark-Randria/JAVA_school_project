@@ -32,6 +32,8 @@ export default function Bibliomaniac() {
   const [lecteur, setLecteur] = React.useState("");
   const [idLecteur, setIdLecteur] = React.useState(null);
 
+  const [searchLecteur, setSearchLecteur] = React.useState("");
+
   const [description, setDescription] = React.useState("");
   const [title, setTitle] = React.useState("");
 
@@ -292,6 +294,36 @@ export default function Bibliomaniac() {
   const handleReset = () => {
     setSelectedLecteur("");
     setLecteur("");
+  };
+
+  const handleSearchSubmit = async (event) => {
+    event.preventDefault();
+    if (!searchLecteur) {
+      setMessage("Retour a la valeur d'origine");
+      setSeverity("info");
+      ShowAlert();
+      try {
+        const response = await axios.get(`${BASE_URL}/lecteurs`);
+        if (response.data && response.status === 200) {
+          setRows(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      let search = searchLecteur;
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/lecteurs/search?query=${search}`
+        );
+        if (response.data && response.status === 200) {
+          console.log(search);
+          setRows(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   const handleAddJSX = (
@@ -587,16 +619,47 @@ export default function Bibliomaniac() {
               sx={{
                 display: "flex",
                 flexGrow: 2,
+                alignItems: "center",
               }}
             >
               <CustomTextField
-                id="password"
+                id="searchfield"
                 label=""
-                placeholder="Nom"
+                value={searchLecteur}
+                onChange={(event) => setSearchLecteur(event.target.value)}
+                placeholder="Nom du lecteur"
                 type="text"
                 variant="outlined"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
                 fullWidth
               />
+              <Box
+                sx={{
+                  boxSizing: "border-box",
+                  padding: "0 16px",
+                }}
+              >
+                <CustomButton
+                  size="small"
+                  variant="contained"
+                  onClick={handleSearchSubmit}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: "monospace",
+                      fontWeight: 400,
+                    }}
+                  >
+                    Rechercher
+                  </Typography>
+                </CustomButton>
+              </Box>
             </Box>
           </Box>
           <DataGrid

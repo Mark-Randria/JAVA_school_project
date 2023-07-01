@@ -7,6 +7,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 
+import { Bar } from "react-chartjs-2";
+
 import { CustomButton, CustomTextField } from "./loan.style";
 
 import LoansImg from "../../assets/pret.svg";
@@ -16,6 +18,7 @@ import Alert from "../../components/alerts/alert";
 export default function Loans() {
   const [livreData, setLivreData] = React.useState(undefined);
   const [lecteurData, setLecteurData] = React.useState(undefined);
+  const [chartData, setChartData] = React.useState(undefined);
 
   const [open, setOpen] = React.useState(false);
 
@@ -34,9 +37,10 @@ export default function Loans() {
       try {
         const responseLivre = await axios.get(`${BASE_URL}/livres/dispo`);
         const responseLecteur = await axios.get(`${BASE_URL}/lecteurs`);
-        console.log(responseLivre.data, responseLecteur.data);
+        const responseChart = await axios.get(`${BASE_URL}/livres/chartData`);
         setLivreData(responseLivre.data);
         setLecteurData(responseLecteur.data);
+        setChartData(responseChart.data);
 
         if (!livreData && !lecteurData) {
           setIsLoading(false);
@@ -98,6 +102,13 @@ export default function Loans() {
           ShowAlert();
         });
     }
+  };
+
+  const handleShowPDF = (dataToSend) => {
+    console.log(dataToSend);
+    Navigate("/Loans/Chart", {
+      state: { nbTotalPret: dataToSend.nbTotalPret, data: dataToSend.data },
+    });
   };
 
   return isLoading ? (
@@ -312,6 +323,28 @@ export default function Loans() {
                 Preter un livre
               </Typography>
             </CustomButton>
+            <Box
+              sx={{
+                marginTop: 20,
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <CustomButton
+                size="small"
+                variant="contained"
+                onClick={() => handleShowPDF(chartData)}
+              >
+                <Typography
+                  sx={{
+                    fontFamily: "monospace",
+                    fontWeight: 400,
+                  }}
+                >
+                  Ouvrir histogramme
+                </Typography>
+              </CustomButton>
+            </Box>
           </Box>
         </Box>
         <Alert

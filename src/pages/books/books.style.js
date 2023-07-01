@@ -22,7 +22,7 @@ export const CustomTextField = styled(TextField)`
     }
 
     & .MuiInputBase-input::placeholder {
-      color: gray;
+      color: #ffffff;
     }
   }
 `;
